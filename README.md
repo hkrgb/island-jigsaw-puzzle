@@ -15,7 +15,9 @@ python -m http.server 8080
 
 ## 更換三張圖片
 
-開啟 `admin.html`，貼上三個公開圖片 URL，然後產生固定遊戲網址。把該網址貼入主程式的 iframe URL 欄位即可；圖片設定包含在網址內，不受第三方 iframe 儲存分隔影響。
+開啟 `admin.html`，以 `info@rgb-workshop.com` Google 帳戶登入。後台可修改所有前台文字、增加或刪除關卡，並逐關設定 16:9 圖片、分數及難度。發佈後前台會直接讀取 Firestore 公開設定。
+
+難度分為容易 3×3、中等 4×4、困難 5×5。Firestore 規則限制只有已驗證的 `info@rgb-workshop.com` 可以寫入設定，其他人只可讀取已發佈內容。
 
 提示圖與拼圖板均固定使用 16:9 橫向比例，設定圖片時亦應選用 16:9 相片。
 

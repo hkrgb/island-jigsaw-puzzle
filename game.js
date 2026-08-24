@@ -1,51 +1,21 @@
-const fallbackConfig={title:'離島拼圖',eyebrow:'ISLAND PUZZLE',piecesPerSide:3,pointsPerLevel:200,levels:[{name:'第一關',image:'assets/level-1.svg'},{name:'第二關',image:'assets/level-2.svg'},{name:'第三關',image:'assets/level-3.svg'}]};
+const CONFIG_ENDPOINT='https://firestore.googleapis.com/v1/projects/island-journey-rgb/databases/(default)/documents/miniGames/jigsawPuzzle';
 const $=s=>document.querySelector(s);let config,currentLevel=0,order=[],selected=null,totalScore=0,locked=false;
 
-function configFromUrl(base){
-  const params=new URLSearchParams(location.search),images=[1,2,3].map(n=>params.get(`image${n}`));
-  if(!images.every(Boolean))return base;
-  return{...base,title:params.get('title')||base.title,levels:images.map((image,index)=>({name:['第一關','第二關','第三關'][index],image}))};
-}
+async function bundledConfig(){const response=await fetch('config.json',{cache:'no-store'});if(!response.ok)throw new Error('Bundled config unavailable');return response.json()}
+async function publishedConfig(){const response=await fetch(CONFIG_ENDPOINT,{cache:'no-store'});if(!response.ok)return null;const data=await response.json(),payload=data.fields?.payload?.stringValue;return payload?JSON.parse(payload):null}
+function configFromUrl(base){const params=new URLSearchParams(location.search),images=[1,2,3].map(n=>params.get(`image${n}`));if(!images.every(Boolean))return base;const levels=images.map((image,index)=>({...base.levels[index],image}));return{...base,texts:{...base.texts,title:params.get('title')||base.texts.title},levels}}
+function normalize(raw,fallback){const texts={...fallback.texts,...(raw?.texts||{})},levels=(raw?.levels?.length?raw.levels:fallback.levels).map((level,index)=>({name:String(level.name||`${texts.levelPrefix}${index+1}${texts.levelSuffix}`),image:String(level.image||fallback.levels[index%fallback.levels.length].image),score:Math.max(0,Number(level.score)||0),difficulty:['easy','medium','hard'].includes(level.difficulty)?level.difficulty:'easy'}));return{texts,levels}}
+function format(template,values){return String(template||'').replace(/\{(\w+)\}/g,(_,key)=>values[key]??'')}
+function sideFor(level){return{easy:3,medium:4,hard:5}[level.difficulty]||3}
 
-async function loadConfig(){
-  try{const response=await fetch('config.json',{cache:'no-store'});if(!response.ok)throw new Error();config=await response.json()}catch{config=fallbackConfig}
-  const local=localStorage.getItem('islandPuzzleConfig');if(local){try{config={...config,...JSON.parse(local)}}catch{}}
-  config=configFromUrl(config);
-  config.levels=(config.levels||[]).slice(0,3);if(config.levels.length!==3)config.levels=fallbackConfig.levels;
-  config.piecesPerSide=Math.min(4,Math.max(2,Number(config.piecesPerSide)||3));
-  config.pointsPerLevel=Number(config.pointsPerLevel)||200;
-  $('#gameTitle').textContent=config.title;$('#eyebrow').textContent=config.eyebrow||'ISLAND PUZZLE';startLevel();
-}
-
-function shuffled(size){
-  const values=Array.from({length:size},(_,i)=>i);do{for(let i=size-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[values[i],values[j]]=[values[j],values[i]]}}while(values.every((v,i)=>v===i));return values;
-}
-
-function startLevel(){
-  locked=false;selected=null;const level=config.levels[currentLevel],side=config.piecesPerSide;
-  $('#levelNumber').textContent=currentLevel+1;$('#score').textContent=totalScore;$('#preview').src=level.image;
-  $('#status').textContent='選擇兩塊拼圖交換位置';order=shuffled(side*side);renderBoard();
-}
-
-function renderBoard(){
-  const board=$('#board'),side=config.piecesPerSide,image=config.levels[currentLevel].image;board.innerHTML='';
-  board.style.gridTemplateColumns=`repeat(${side},1fr)`;board.style.gridTemplateRows=`repeat(${side},1fr)`;
-  order.forEach((piece,position)=>{const tile=document.createElement('button'),x=piece%side,y=Math.floor(piece/side);tile.type='button';tile.className='tile'+(piece===position?' correct':'')+(selected===position?' selected':'');tile.style.backgroundImage=`url("${String(image).replace(/"/g,'')}")`;tile.style.backgroundSize=`${side*100}% ${side*100}%`;tile.style.backgroundPosition=`${x*100/(side-1)}% ${y*100/(side-1)}%`;tile.setAttribute('aria-label',`拼圖第 ${position+1} 格`);tile.onclick=()=>choose(position);board.appendChild(tile)});
-}
-
-function choose(position){
-  if(locked)return;if(selected===null){selected=position;$('#status').textContent='再選擇另一塊拼圖交換';renderBoard();return}
-  if(selected===position){selected=null;$('#status').textContent='已取消選擇';renderBoard();return}
-  [order[selected],order[position]]=[order[position],order[selected]];selected=null;renderBoard();
-  if(order.every((v,i)=>v===i))completeLevel();else $('#status').textContent='很好，繼續拼圖！';
-}
-
-function completeLevel(){
-  locked=true;totalScore+=config.pointsPerLevel;$('#score').textContent=totalScore;$('#status').textContent='完成！';
-  setTimeout(()=>{if(currentLevel===2){$('#finishModal').classList.remove('hidden')}else{$('#modalTitle').textContent=`完成${config.levels[currentLevel].name}！`;$('#modalText').textContent='準備挑戰下一張相片。';$('#levelModal').classList.remove('hidden')}},450);
-}
-
-$('#shuffleButton').onclick=()=>{if(!locked){order=shuffled(order.length);selected=null;renderBoard();$('#status').textContent='已重新排列'}};
+async function loadConfig(){let fallback;try{fallback=await bundledConfig()}catch{return}let remote=null;try{remote=await publishedConfig()}catch(error){console.warn('Using bundled puzzle config',error)}config=normalize(configFromUrl(remote||fallback),fallback);applyTexts();startLevel()}
+function applyTexts(){const t=config.texts;document.title=t.title;$('#gameTitle').textContent=t.title;$('#eyebrow').textContent=t.eyebrow;$('#instructions').textContent=t.instructions;$('#previewLabel').textContent=t.previewLabel;$('#shuffleButton').textContent=t.shuffleButton;$('#levelPrefix').textContent=t.levelPrefix;$('#levelSuffix').textContent=t.levelSuffix;$('#scoreUnit').textContent=t.scoreUnit;$('#levelTotal').textContent=config.levels.length;$('#levelModal small').textContent=t.levelCompleteEyebrow;$('#nextButton').textContent=t.nextButton;$('#finishEyebrow').textContent=t.finishEyebrow;$('#finishTitle').textContent=t.finishTitle;$('#finishText').textContent=t.finishText}
+function shuffled(size){const values=Array.from({length:size},(_,i)=>i);do{for(let i=size-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[values[i],values[j]]=[values[j],values[i]]}}while(values.every((v,i)=>v===i));return values}
+function startLevel(){locked=false;selected=null;const level=config.levels[currentLevel],side=sideFor(level);$('#levelNumber').textContent=currentLevel+1;$('#score').textContent=totalScore;$('#preview').src=level.image;$('#status').textContent=config.texts.statusInitial;order=shuffled(side*side);renderBoard()}
+function renderBoard(){const board=$('#board'),level=config.levels[currentLevel],side=sideFor(level);board.innerHTML='';board.style.gridTemplateColumns=`repeat(${side},1fr)`;board.style.gridTemplateRows=`repeat(${side},1fr)`;order.forEach((piece,position)=>{const tile=document.createElement('button'),x=piece%side,y=Math.floor(piece/side);tile.type='button';tile.className='tile'+(piece===position?' correct':'')+(selected===position?' selected':'');tile.style.backgroundImage=`url("${level.image.replace(/"/g,'')}")`;tile.style.backgroundSize=`${side*100}% ${side*100}%`;tile.style.backgroundPosition=`${x*100/(side-1)}% ${y*100/(side-1)}%`;tile.setAttribute('aria-label',`拼圖第 ${position+1} 格`);tile.onclick=()=>choose(position);board.appendChild(tile)})}
+function choose(position){if(locked)return;const t=config.texts;if(selected===null){selected=position;$('#status').textContent=t.statusSelected;renderBoard();return}if(selected===position){selected=null;$('#status').textContent=t.statusCancelled;renderBoard();return}[order[selected],order[position]]=[order[position],order[selected]];selected=null;renderBoard();if(order.every((v,i)=>v===i))completeLevel();else $('#status').textContent=t.statusContinue}
+function completeLevel(){locked=true;const level=config.levels[currentLevel];totalScore+=level.score;$('#score').textContent=totalScore;$('#status').textContent=config.texts.statusComplete;setTimeout(()=>{if(currentLevel===config.levels.length-1){$('#finishPoints').textContent=`${totalScore} ${config.texts.scoreUnit}`;$('#finishButton').textContent=format(config.texts.finishButton,{score:totalScore});$('#finishModal').classList.remove('hidden')}else{$('#modalTitle').textContent=format(config.texts.levelCompleteTitle,{level:level.name,score:level.score});$('#levelPoints').textContent=`+${level.score} ${config.texts.scoreUnit}`;$('#modalText').textContent=config.texts.levelCompleteText;$('#levelModal').classList.remove('hidden')}},450)}
+$('#shuffleButton').onclick=()=>{if(!locked){order=shuffled(order.length);selected=null;renderBoard();$('#status').textContent=config.texts.statusShuffled}};
 $('#nextButton').onclick=()=>{$('#levelModal').classList.add('hidden');currentLevel++;startLevel()};
-$('#finishButton').onclick=()=>{const score=config.pointsPerLevel*3;window.parent.postMessage({complete:true,score},'*');$('#finishButton').disabled=true;$('#finishButton').textContent='已帶回主遊戲 ✓'};
+$('#finishButton').onclick=()=>{window.parent.postMessage({complete:true,score:totalScore},'*');$('#finishButton').disabled=true;$('#finishButton').textContent=config.texts.sentButton};
 loadConfig();

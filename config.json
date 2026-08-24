@@ -1,11 +1,21 @@
 {
-  "title": "離島拼圖",
-  "eyebrow": "ISLAND PUZZLE",
-  "piecesPerSide": 3,
-  "pointsPerLevel": 200,
+  "texts": {
+    "title": "離島拼圖", "eyebrow": "ISLAND PUZZLE",
+    "instructions": "點選兩塊拼圖交換位置。完成每關即可得分。",
+    "previewLabel": "完整圖片", "shuffleButton": "重新排列",
+    "statusInitial": "選擇兩塊拼圖交換位置", "statusSelected": "再選擇另一塊拼圖交換",
+    "statusCancelled": "已取消選擇", "statusContinue": "很好，繼續拼圖！",
+    "statusShuffled": "已重新排列", "statusComplete": "完成！",
+    "levelPrefix": "第", "levelSuffix": "關", "scoreUnit": "分",
+    "levelCompleteEyebrow": "LEVEL COMPLETE", "levelCompleteTitle": "完成 {level}！",
+    "levelCompleteText": "準備挑戰下一張相片。", "nextButton": "下一關 →",
+    "finishEyebrow": "ALL COMPLETE", "finishTitle": "全部完成！",
+    "finishText": "分數已準備帶回主遊戲。", "finishButton": "帶走 {score} 分 →",
+    "sentButton": "已帶回主遊戲 ✓"
+  },
   "levels": [
-    {"name": "第一關", "image": "assets/level-1.svg"},
-    {"name": "第二關", "image": "assets/level-2.svg"},
-    {"name": "第三關", "image": "assets/level-3.svg"}
+    {"name": "第一關", "image": "assets/level-1.svg", "score": 200, "difficulty": "easy"},
+    {"name": "第二關", "image": "assets/level-2.svg", "score": 200, "difficulty": "easy"},
+    {"name": "第三關", "image": "assets/level-3.svg", "score": 200, "difficulty": "easy"}
   ]
 }

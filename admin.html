@@ -1,45 +1,17 @@
 <!doctype html>
 <html lang="zh-HK">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>離島拼圖｜設定</title>
-  <style>
-    body{margin:0;background:#eef3f5;color:#173748;font-family:"Microsoft JhengHei",sans-serif}.wrap{width:min(760px,92vw);margin:35px auto;background:#fff;padding:30px;box-shadow:0 12px 45px #17374818}h1{margin-top:0}label{display:block;font-weight:700;margin:16px 0}input{display:block;width:100%;box-sizing:border-box;margin-top:6px;padding:11px;border:1px solid #becdd4}small{color:#687e89}.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}button,a{border:0;padding:12px 17px;background:#173748;color:#fff;text-decoration:none;cursor:pointer}.secondary{background:#4b849d}.result{margin-top:25px;padding:18px;background:#edf6f8;border-left:4px solid #4b849d}.result input{font-family:Consolas,monospace;font-size:12px}.hidden{display:none}#message{color:#24704c}
-  </style>
-</head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>離島拼圖｜管理後台</title><link rel="stylesheet" href="admin.css"></head>
 <body>
-  <main class="wrap">
-    <h1>離島拼圖設定</h1>
-    <p>填入三張圖片後，系統會產生一條包含設定的固定遊戲網址。將該網址貼入主程式的「外部小遊戲 iframe URL」，圖片便會在 iframe 內正常顯示。</p>
-    <form id="form">
-      <label>遊戲名稱<input id="title" required></label>
-      <label>第一關圖片 URL<input id="image1" type="url" required></label>
-      <label>第二關圖片 URL<input id="image2" type="url" required></label>
-      <label>第三關圖片 URL<input id="image3" type="url" required></label>
-      <small>必須使用 16:9 橫向相片；網址必須以 https:// 開始。</small>
-      <div class="row">
-        <button type="submit">產生固定遊戲網址</button>
-        <a href="index.html" target="_blank">開啟預設遊戲</a>
-      </div>
-      <p id="message" aria-live="polite"></p>
+  <main class="shell">
+    <header><div><small>ISLAND PUZZLE CMS</small><h1>離島拼圖管理後台</h1></div><button id="logout" class="ghost" hidden>登出</button></header>
+    <section id="login" class="login-card"><h2>管理員登入</h2><p>只有指定的 Google Workspace 帳戶可以登入及發佈設定。</p><button id="loginButton">使用 Google 登入</button><p id="loginMessage" class="message"></p></section>
+    <form id="editor" hidden>
+      <div class="toolbar"><span id="userEmail"></span><div><button id="reload" type="button" class="ghost">重新載入</button><button type="submit">發佈設定</button></div></div>
+      <section><h2>前台文字</h2><p class="hint">所有玩家看得到的介面文字均可修改；<code>{level}</code> 及 <code>{score}</code> 會自動代入。</p><div id="textFields" class="text-grid"></div></section>
+      <section><div class="section-head"><div><h2>關卡設定</h2><p class="hint">關卡數量由下方卡片數量決定。容易 3×3、中等 4×4、困難 5×5。</p></div><button id="addLevel" type="button">＋ 增加關卡</button></div><div id="levels"></div></section>
+      <div class="publish"><span id="saveMessage" class="message"></span><button type="submit">發佈全部修改</button></div>
     </form>
-    <section id="result" class="result hidden">
-      <b>主程式 iframe URL</b>
-      <input id="gameUrl" readonly aria-label="主程式 iframe URL">
-      <div class="row">
-        <button id="copy" type="button">複製網址</button>
-        <a id="preview" target="_blank">用所選圖片測試遊戲</a>
-      </div>
-    </section>
   </main>
-  <script>
-    const $=s=>document.querySelector(s),defaults={title:'離島拼圖',levels:[{image:'assets/level-1.svg'},{image:'assets/level-2.svg'},{image:'assets/level-3.svg'}]};
-    async function load(){let cfg=defaults;try{cfg=await(await fetch('config.json',{cache:'no-store'})).json()}catch{}try{cfg={...cfg,...JSON.parse(localStorage.getItem('islandPuzzleConfig'))}}catch{}$('#title').value=cfg.title||defaults.title;(cfg.levels||defaults.levels).slice(0,3).forEach((x,i)=>$('#image'+(i+1)).value=x.image)}
-    function buildUrl(){const url=new URL('index.html',location.href);url.searchParams.set('title',$('#title').value.trim());[1,2,3].forEach(n=>url.searchParams.set(`image${n}`,$('#image'+n).value.trim()));return url.href}
-    $('#form').onsubmit=e=>{e.preventDefault();const levels=[1,2,3].map((n,i)=>({name:['第一關','第二關','第三關'][i],image:$('#image'+n).value.trim()}));localStorage.setItem('islandPuzzleConfig',JSON.stringify({title:$('#title').value.trim(),eyebrow:'ISLAND PUZZLE',piecesPerSide:3,pointsPerLevel:200,levels}));const url=buildUrl();$('#gameUrl').value=url;$('#preview').href=url;$('#result').classList.remove('hidden');$('#message').textContent='設定已寫入固定網址；請複製到主程式。'};
-    $('#copy').onclick=async()=>{try{await navigator.clipboard.writeText($('#gameUrl').value);$('#copy').textContent='已複製 ✓'}catch{$('#gameUrl').select();document.execCommand('copy');$('#copy').textContent='已複製 ✓'}};
-    load();
-  </script>
+  <script type="module" src="admin.js"></script>
 </body>
 </html>

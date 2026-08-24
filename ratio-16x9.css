@@ -3,6 +3,10 @@
   aspect-ratio: 16 / 9;
 }
 
+.progress i {
+  font-style: normal;
+}
+
 .board {
   width: min(76vh, 70vw, 760px);
   aspect-ratio: 16 / 9;

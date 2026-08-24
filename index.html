@@ -15,8 +15,8 @@
         <h1 id="gameTitle">離島拼圖</h1>
       </div>
       <div class="progress" aria-label="遊戲進度">
-        <span>第 <b id="levelNumber">1</b> / 3 關</span>
-        <span><b id="score">0</b> 分</span>
+        <span><i id="levelPrefix">第</i> <b id="levelNumber">1</b> / <b id="levelTotal">3</b> <i id="levelSuffix">關</i></span>
+        <span><b id="score">0</b> <i id="scoreUnit">分</i></span>
       </div>
     </header>
 
@@ -25,7 +25,7 @@
         <p id="instructions">點選兩塊拼圖交換位置。完成每關可得 200 分。</p>
         <div class="preview-wrap">
           <img id="preview" alt="完整圖片參考">
-          <span>完整圖片</span>
+          <span id="previewLabel">完整圖片</span>
         </div>
         <button id="shuffleButton" class="secondary" type="button">重新排列</button>
       </aside>
@@ -40,7 +40,7 @@
     <div class="modal-card">
       <small>LEVEL COMPLETE</small>
       <h2 id="modalTitle">完成第一關！</h2>
-      <strong>+200 分</strong>
+      <strong id="levelPoints">+200 分</strong>
       <p id="modalText">準備挑戰下一張相片。</p>
       <button id="nextButton" type="button">下一關 →</button>
     </div>
@@ -48,11 +48,11 @@
 
   <div id="finishModal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal-card finish-card">
-      <small>ALL COMPLETE</small>
-      <h2>三關全部完成！</h2>
-      <strong>600 分</strong>
-      <p>分數已準備帶回主遊戲。</p>
-      <button id="finishButton" type="button">帶走 600 分 →</button>
+      <small id="finishEyebrow">ALL COMPLETE</small>
+      <h2 id="finishTitle">全部完成！</h2>
+      <strong id="finishPoints">600 分</strong>
+      <p id="finishText">分數已準備帶回主遊戲。</p>
+      <button id="finishButton" type="button">帶走分數 →</button>
     </div>
   </div>
 
