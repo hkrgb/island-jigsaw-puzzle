@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-HK">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>離島拼圖</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="game-shell">
+    <header>
+      <div>
+        <small id="eyebrow">ISLAND PUZZLE</small>
+        <h1 id="gameTitle">離島拼圖</h1>
+      </div>
+      <div class="progress" aria-label="遊戲進度">
+        <span>第 <b id="levelNumber">1</b> / 3 關</span>
+        <span><b id="score">0</b> 分</span>
+      </div>
+    </header>
+
+    <section class="play-area">
+      <aside>
+        <p id="instructions">點選兩塊拼圖交換位置。完成每關可得 200 分。</p>
+        <div class="preview-wrap">
+          <img id="preview" alt="完整圖片參考">
+          <span>完整圖片</span>
+        </div>
+        <button id="shuffleButton" class="secondary" type="button">重新排列</button>
+      </aside>
+      <div>
+        <div id="board" class="board" role="group" aria-label="拼圖區"></div>
+        <p id="status" class="status" aria-live="polite">選擇兩塊拼圖交換位置</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="levelModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <small>LEVEL COMPLETE</small>
+      <h2 id="modalTitle">完成第一關！</h2>
+      <strong>+200 分</strong>
+      <p id="modalText">準備挑戰下一張相片。</p>
+      <button id="nextButton" type="button">下一關 →</button>
+    </div>
+  </div>
+
+  <div id="finishModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card finish-card">
+      <small>ALL COMPLETE</small>
+      <h2>三關全部完成！</h2>
+      <strong>600 分</strong>
+      <p>分數已準備帶回主遊戲。</p>
+      <button id="finishButton" type="button">帶走 600 分 →</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

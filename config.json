@@ -1,0 +1,11 @@
+{
+  "title": "離島拼圖",
+  "eyebrow": "ISLAND PUZZLE",
+  "piecesPerSide": 3,
+  "pointsPerLevel": 200,
+  "levels": [
+    {"name": "第一關", "image": "assets/level-1.svg"},
+    {"name": "第二關", "image": "assets/level-2.svg"},
+    {"name": "第三關", "image": "assets/level-3.svg"}
+  ]
+}
