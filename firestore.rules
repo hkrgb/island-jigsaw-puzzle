@@ -9,6 +9,8 @@ service cloud.firestore {
     match /projects/{projectId}/content/published { allow read: if true; allow write: if isAdmin(); }
     match /projects/{projectId}/content/draft { allow read, write: if isAdmin(); }
     match /miniGames/jigsawPuzzle { allow read: if true; allow write: if isAdmin(); }
+    match /miniGames/jigsawPuzzle/versions/{versionId} { allow read: if true; allow write: if isAdmin(); }
+    match /miniGames/peaceBunWhack { allow read: if true; allow write: if isAdmin(); }
     match /{document=**} { allow read, write: if false; }
   }
 }

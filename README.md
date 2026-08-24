@@ -15,7 +15,9 @@ python -m http.server 8080
 
 ## 更換三張圖片
 
-開啟 `admin.html`，以 `info@rgb-workshop.com` Google 帳戶登入。後台可修改所有前台文字、增加或刪除關卡，並逐關設定 16:9 圖片、分數及難度。發佈後前台會直接讀取 Firestore 公開設定。
+開啟 `admin.html`，以 `info@rgb-workshop.com` Google 帳戶登入。後台可新增、複製、命名、刪除及發佈多個遊戲版本；每個版本可獨立修改所有前台文字、關卡、16:9 圖片、分數及難度。
+
+預設版本沿用原本遊戲網址。其他版本會使用獨立網址，例如 `index.html?version=school-trip`，方便主程式按故事需要載入指定版本。
 
 難度分為容易 3×3、中等 4×4、困難 5×5。Firestore 規則限制只有已驗證的 `info@rgb-workshop.com` 可以寫入設定，其他人只可讀取已發佈內容。
 

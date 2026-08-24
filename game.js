@@ -1,8 +1,9 @@
-const CONFIG_ENDPOINT='https://firestore.googleapis.com/v1/projects/island-journey-rgb/databases/(default)/documents/miniGames/jigsawPuzzle';
+const CONFIG_ROOT='https://firestore.googleapis.com/v1/projects/island-journey-rgb/databases/(default)/documents/miniGames/jigsawPuzzle';
 const $=s=>document.querySelector(s);let config,currentLevel=0,order=[],selected=null,totalScore=0,locked=false;
 
 async function bundledConfig(){const response=await fetch('config.json',{cache:'no-store'});if(!response.ok)throw new Error('Bundled config unavailable');return response.json()}
-async function publishedConfig(){const response=await fetch(CONFIG_ENDPOINT,{cache:'no-store'});if(!response.ok)return null;const data=await response.json(),payload=data.fields?.payload?.stringValue;return payload?JSON.parse(payload):null}
+function versionId(){const value=new URLSearchParams(location.search).get('version')||'';return/^[a-z0-9-]{1,40}$/.test(value)?value:''}
+async function publishedConfig(){const id=versionId(),endpoint=id?`${CONFIG_ROOT}/versions/${encodeURIComponent(id)}`:CONFIG_ROOT,response=await fetch(endpoint,{cache:'no-store'});if(!response.ok)return null;const data=await response.json(),payload=data.fields?.payload?.stringValue;return payload?JSON.parse(payload):null}
 function configFromUrl(base){const params=new URLSearchParams(location.search),images=[1,2,3].map(n=>params.get(`image${n}`));if(!images.every(Boolean))return base;const levels=images.map((image,index)=>({...base.levels[index],image}));return{...base,texts:{...base.texts,title:params.get('title')||base.texts.title},levels}}
 function normalize(raw,fallback){const texts={...fallback.texts,...(raw?.texts||{})},levels=(raw?.levels?.length?raw.levels:fallback.levels).map((level,index)=>({name:String(level.name||`${texts.levelPrefix}${index+1}${texts.levelSuffix}`),image:String(level.image||fallback.levels[index%fallback.levels.length].image),score:Math.max(0,Number(level.score)||0),difficulty:['easy','medium','hard'].includes(level.difficulty)?level.difficulty:'easy'}));return{texts,levels}}
 function format(template,values){return String(template||'').replace(/\{(\w+)\}/g,(_,key)=>values[key]??'')}

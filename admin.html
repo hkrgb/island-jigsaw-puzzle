@@ -7,6 +7,17 @@
     <section id="login" class="login-card"><h2>管理員登入</h2><p>只有指定的 Google Workspace 帳戶可以登入及發佈設定。</p><button id="loginButton">使用 Google 登入</button><p id="loginMessage" class="message"></p></section>
     <form id="editor" hidden>
       <div class="toolbar"><span id="userEmail"></span><div><button id="reload" type="button" class="ghost">重新載入</button><button type="submit">發佈設定</button></div></div>
+      <section class="version-panel">
+        <div class="section-head"><div><h2>遊戲版本</h2><p class="hint">每個版本都有獨立設定及前台網址；「預設版本」會繼續使用原本網址。</p></div><button id="newVersion" type="button">＋ 新增版本</button></div>
+        <div class="version-tools">
+          <label>目前版本<select id="versionSelect"></select></label>
+          <button id="duplicateVersion" type="button" class="ghost">複製目前版本</button>
+          <button id="copyVersionLink" type="button" class="ghost">複製前台網址</button>
+          <button id="deleteVersion" type="button" class="danger">刪除此版本</button>
+        </div>
+        <label class="version-name">版本名稱<input id="versionName" maxlength="60" required></label>
+        <p id="versionLink" class="version-link"></p>
+      </section>
       <section><h2>前台文字</h2><p class="hint">所有玩家看得到的介面文字均可修改；<code>{level}</code> 及 <code>{score}</code> 會自動代入。</p><div id="textFields" class="text-grid"></div></section>
       <section><div class="section-head"><div><h2>關卡設定</h2><p class="hint">關卡數量由下方卡片數量決定。容易 3×3、中等 4×4、困難 5×5。</p></div><button id="addLevel" type="button">＋ 增加關卡</button></div><div id="levels"></div></section>
       <div class="publish"><span id="saveMessage" class="message"></span><button type="submit">發佈全部修改</button></div>
