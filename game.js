@@ -1,9 +1,16 @@
 const fallbackConfig={title:'離島拼圖',eyebrow:'ISLAND PUZZLE',piecesPerSide:3,pointsPerLevel:200,levels:[{name:'第一關',image:'assets/level-1.svg'},{name:'第二關',image:'assets/level-2.svg'},{name:'第三關',image:'assets/level-3.svg'}]};
 const $=s=>document.querySelector(s);let config,currentLevel=0,order=[],selected=null,totalScore=0,locked=false;
 
+function configFromUrl(base){
+  const params=new URLSearchParams(location.search),images=[1,2,3].map(n=>params.get(`image${n}`));
+  if(!images.every(Boolean))return base;
+  return{...base,title:params.get('title')||base.title,levels:images.map((image,index)=>({name:['第一關','第二關','第三關'][index],image}))};
+}
+
 async function loadConfig(){
   try{const response=await fetch('config.json',{cache:'no-store'});if(!response.ok)throw new Error();config=await response.json()}catch{config=fallbackConfig}
   const local=localStorage.getItem('islandPuzzleConfig');if(local){try{config={...config,...JSON.parse(local)}}catch{}}
+  config=configFromUrl(config);
   config.levels=(config.levels||[]).slice(0,3);if(config.levels.length!==3)config.levels=fallbackConfig.levels;
   config.piecesPerSide=Math.min(4,Math.max(2,Number(config.piecesPerSide)||3));
   config.pointsPerLevel=Number(config.pointsPerLevel)||200;
