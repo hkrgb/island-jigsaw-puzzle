@@ -8,7 +8,9 @@
 }
 
 .board {
-  width: min(76vh, 70vw, 760px);
+  /* Size the board from available width. Using vh directly as a width made
+     short landscape phones render an unnecessarily tiny puzzle. */
+  width: min(58vw, 690px);
   aspect-ratio: 16 / 9;
 }
 
@@ -18,6 +20,69 @@
   }
 
   .board {
-    width: min(92vw, 72vh);
+    width: min(92vw, 690px);
+  }
+}
+
+/* Keep the desktop-style two-column composition on landscape phones. The
+   height cap is converted through 16:9, so it limits board height correctly. */
+@media (orientation: landscape) and (max-height: 650px) {
+  .game-shell {
+    width: min(1180px, 94vw);
+    padding: 10px 0;
+  }
+
+  header {
+    align-items: end;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(24px, 3.2vw, 34px);
+    margin-top: 2px;
+  }
+
+  .progress {
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  .progress span {
+    padding: 7px 9px;
+  }
+
+  .play-area {
+    grid-template-columns: minmax(155px, 22vw) minmax(300px, 1fr);
+    gap: clamp(16px, 3vw, 38px);
+    align-items: center;
+  }
+
+  .play-area aside {
+    display: block;
+  }
+
+  .play-area aside p {
+    margin: 0 0 8px;
+    font-size: clamp(12px, 1.5vw, 15px);
+    line-height: 1.55;
+  }
+
+  .preview-wrap {
+    width: 100%;
+  }
+
+  .secondary {
+    margin-top: 8px;
+    padding: 8px;
+  }
+
+  .board {
+    width: min(58vw, 690px, calc((100vh - 125px) * 16 / 9));
+  }
+
+  .status {
+    margin-top: 6px;
+    font-size: clamp(12px, 1.5vw, 15px);
   }
 }
