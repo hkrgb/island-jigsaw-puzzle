@@ -1,0 +1,1 @@
+@media (orientation:landscape) and (max-height:800px){html,body{height:100%;overflow:hidden}.modal{padding:6px}.modal-card{width:min(440px,78vw);max-height:calc(100vh - 12px);overflow:hidden;padding:16px 24px}.modal-card h2{font-size:24px;margin:6px}.modal-card strong{font-size:30px}.modal-card p{font-size:13px;margin:7px}.modal-card button{padding:9px 18px;font-size:13px}}
