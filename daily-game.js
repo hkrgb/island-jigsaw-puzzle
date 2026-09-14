@@ -6,7 +6,7 @@ const send=d=>parent.postMessage({...d,session},hostOrigin);
 function status(text){$('status').textContent=text;}
 function renderState(data){if(!state)status('準備好了。今天每次遊玩都會獲得同一款。');state=data;$('money').textContent='$'+data.money;$('day').textContent=data.day+' · 香港';$('play').disabled=pending||awaitingCollection||data.money<20;$('play').textContent=kind==='toy'?'轉一次 · $20':'開始拼圖 · $20';if(data.art?.background&&kind==='postcard')document.body.style.backgroundImage='linear-gradient(#edf7f822,#edf7f822),url("'+data.art.background+'")';if(data.art?.machine&&kind==='toy')$('machineImage').src=data.art.machine;renderCollection(data.collection||[]);}
 function renderCollection(list){$('collectionCount').textContent=list.length+' 款收藏';const box=$('collection');box.replaceChildren();for(const v of list){const card=document.createElement('button');card.className='collectionItem';const img=document.createElement('img');img.src=v.image;img.alt=v.name;const text=document.createElement('span');text.textContent=v.name;card.append(img,text);card.onclick=()=>showItem(v);box.append(card);}}
-function showItem(item){$('resultImage').src=item.image;$('resultImage').alt=item.name;$('resultName').textContent=item.name;$('result').hidden=false;}
+function showItem(item){$('resultImage').src=item.image;$('resultImage').alt=item.name;$('resultName').textContent=item.name;$('closeResult').textContent=$('collectionPanel').hidden?'收下回憶':'返回收藏';$('result').hidden=false;}
 function selectDaily(items,day){let hash=2166136261;for(const c of kind+'|'+day)hash=Math.imul(hash^c.charCodeAt(0),16777619)>>>0;const sorted=items.slice().sort((a,b)=>a.id.localeCompare(b.id));return sorted[hash%sorted.length];}
 function persist(){localStorage.setItem(storageKey,JSON.stringify(standalone));}
 function standaloneState(){renderState({day:today(),money:standalone.money,art:{machine:'assets/daily/machine.png',background:'assets/daily/postcard-table.png'},collection:Object.values(standalone.collection)});}
@@ -53,3 +53,16 @@ if(kind==='postcard')$('preview').onclick=()=>{$('previewImage').hidden=!$('prev
 addEventListener('message',e=>{const d=e.data;if(!embedded||e.source!==parent||e.origin!==hostOrigin||!d||d.session!==session)return;if(d.type==='bookshop-state')renderState(d);if(d.type==='bookshop-paid')paid(d);if(d.type==='bookshop-error'&&d.request===request){pending=false;status(d.text);$('play').disabled=state.money<20;}if(d.type==='bookshop-collected'&&d.request===request)collected();});
 if(embedded){$('standaloneLink').hidden=true;send({type:'bookshop-ready'});}else loadStandalone().catch(()=>status('未能載入藏品，請重新整理。'));
 setInterval(()=>{if(!embedded)return;if(!state)send({type:'bookshop-ready'});else if(pending&&request)send({type:'bookshop-play',request});else if(awaitingCollection)send({type:'bookshop-complete',request,order});},1500);
+const zoomButton=document.createElement('button');zoomButton.id='zoomPostcard';zoomButton.textContent='🔍 放大';zoomButton.setAttribute('aria-label','全屏放大明信片');$('closeResult').before(zoomButton);
+zoomButton.onclick=async()=>{
+ if($('postcardZoom'))return;
+ const overlay=document.createElement('section');overlay.id='postcardZoom';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label',$('resultName').textContent+' · 全屏大圖');
+ const img=document.createElement('img');img.src=$('resultImage').src;img.alt=$('resultImage').alt;
+ const close=document.createElement('button');close.textContent='×';close.setAttribute('aria-label','關閉全屏大圖');let native=false;
+ const cleanup=()=>{document.removeEventListener('fullscreenchange',changed);document.removeEventListener('keydown',key);overlay.remove();zoomButton.focus();};
+ const changed=()=>{if(native&&document.fullscreenElement!==overlay)cleanup();};
+ const key=e=>{if(e.key==='Escape'){e.preventDefault();close.click();}};
+ close.onclick=async()=>{if(document.fullscreenElement===overlay){try{await document.exitFullscreen();}catch{}}cleanup();};
+ overlay.append(img,close);document.body.append(overlay);close.focus();document.addEventListener('fullscreenchange',changed);document.addEventListener('keydown',key);
+ try{await overlay.requestFullscreen();native=true;}catch{/* The black-backed viewport viewer also works when fullscreen is unavailable. */}
+};
